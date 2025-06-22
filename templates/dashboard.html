@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Property Valuation Dashboard</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body style="background-color: #f8f9fa;">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/">Harare Property Valuation</a>
+            <div class="navbar-nav">
+                <a class="nav-link" href="/">Home</a>
+                <a class="nav-link active" href="/dashboard">Dashboard</a>
+                <a class="nav-link" href="/spatial-analysis">Spatial Analysis</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <h1 class="mb-4">Property Market Dashboard</h1>
+        
+        <!-- Statistics Cards -->
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <div class="card bg-primary text-white">
+                    <div class="card-body text-center">
+                        <h3 id="total-properties">-</h3>
+                        <p>Total Properties</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-success text-white">
+                    <div class="card-body text-center">
+                        <h3 id="avg-value">-</h3>
+                        <p>Average Value</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-warning text-white">
+                    <div class="card-body text-center">
+                        <h3 id="max-value">-</h3>
+                        <p>Highest Value</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card bg-info text-white">
+                    <div class="card-body text-center">
+                        <h3 id="min-value">-</h3>
+                        <p>Lowest Value</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts -->
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h4>Property Values by Location</h4>
+                        <canvas id="locationChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h4>Property Type Distribution</h4>
+                        <canvas id="propertyTypeChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Data Table -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h4>Property Data Overview</h4>
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>Location</th>
+                                        <th>Property Type</th>
+                                        <th>Area (sqm)</th>
+                                        <th>Rooms</th>
+                                        <th>Market Value</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tableBody">
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            loadDashboardData();
+        });
+
+        function loadDashboardData() {
+            $.ajax({
+                url: '/api/property-data',
+                method: 'GET',
+                success: function(response) {
+                    if (response.success) {
+                        updateStatistics(response.data);
+                        createCharts(response.data);
+                        updateTable(response.data);
+                    }
+                },
+                error: function() {
+                    console.log('Error loading dashboard data');
+                }
+            });
+        }
+
+        function updateStatistics(data) {
+            const values = data.map(item => item['Market Value']);
+            const total = data.length;
+            const avg = values.reduce((a, b) => a + b, 0) / total;
+            const max = Math.max(...values);
+            const min = Math.min(...values);
+
+            $('#total-properties').text(total.toLocaleString());
+            $('#avg-value').text('$' + avg.toLocaleString(undefined, {maximumFractionDigits: 0}));
+            $('#max-value').text('$' + max.toLocaleString());
+            $('#min-value').text('$' + min.toLocaleString());
+        }
+
+        function createCharts(data) {
+            // Location Chart
+            const locationData = {};
+            data.forEach(item => {
+                const location = item['Location'];
+                if (!locationData[location]) {
+                    locationData[location] = [];
+                }
+                locationData[location].push(item['Market Value']);
+            });
+
+            const locationAvg = Object.keys(locationData).map(location => ({
+                location: location,
+                avgValue: locationData[location].reduce((a, b) => a + b, 0) / locationData[location].length
+            }));
+
+            new Chart(document.getElementById('locationChart'), {
+                type: 'bar',
+                data: {
+                    labels: locationAvg.map(item => item.location),
+                    datasets: [{
+                        label: 'Average Value',
+                        data: locationAvg.map(item => item.avgValue),
+                        backgroundColor: 'rgba(54, 162, 235, 0.8)'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return '$' + value.toLocaleString();
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Property Type Chart
+            const propertyTypeData = {};
+            data.forEach(item => {
+                const type = item['Property Type'];
+                propertyTypeData[type] = (propertyTypeData[type] || 0) + 1;
+            });
+
+            new Chart(document.getElementById('propertyTypeChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(propertyTypeData),
+                    datasets: [{
+                        data: Object.values(propertyTypeData),
+                        backgroundColor: [
+                            '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true
+                }
+            });
+        }
+
+        function updateTable(data) {
+            const tableBody = $('#tableBody');
+            tableBody.empty();
+            
+            data.slice(0, 10).forEach(item => {
+                tableBody.append(`
+                    <tr>
+                        <td>${item['Location']}</td>
+                        <td>${item['Property Type']}</td>
+                        <td>${item['Area']}</td>
+                        <td>${item['Number of rooms']}</td>
+                        <td>$${item['Market Value'].toLocaleString()}</td>
+                    </tr>
+                `);
+            });
+        }
+    </script>
+</body>
+</html> 

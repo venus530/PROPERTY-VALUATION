@@ -1,0 +1,50 @@
+{
+    "model_name": "Gradient Boosting",
+    "performance": {
+        "MAE": 9603.875328182949,
+        "MSE": 404541117.1867374,
+        "R2": 0.9300105964603674
+    },
+    "feature_names": [
+        "num__Area",
+        "num__Number of structures",
+        "num__Land Rate",
+        "num__Number of rooms",
+        "num__Proximity to schools(km)",
+        "num__Proximity to healthcare(km)",
+        "num__Proximity to malls(km)",
+        "num__Proximity to highway(km)",
+        "cat__Property Type_double_storey",
+        "cat__Property Type_single_storey",
+        "cat__Location_high density",
+        "cat__Location_low density",
+        "cat__Location_medium density",
+        "cat__Swimming Pool_No",
+        "cat__Swimming Pool_Yes",
+        "cat__Boundary_fenced",
+        "cat__Boundary_walled",
+        "cat__Boundary_walled&electric",
+        "cat__Age Category_established",
+        "cat__Age Category_new",
+        "cat__Age Category_old",
+        "cat__Age Category_relatively new"
+    ],
+    "categorical_features": [
+        "Property Type",
+        "Location",
+        "Swimming Pool",
+        "Boundary",
+        "Age Category"
+    ],
+    "numerical_features": [
+        "Area",
+        "Number of structures",
+        "Land Rate",
+        "Number of rooms",
+        "Proximity to schools(km)",
+        "Proximity to healthcare(km)",
+        "Proximity to malls(km)",
+        "Proximity to highway(km)"
+    ],
+    "target": "Market Value"
+}

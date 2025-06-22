@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spatial Analysis - Harare Property Values</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        #map {
+            height: 500px;
+            width: 100%;
+            border-radius: 10px;
+        }
+        .legend {
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin: 5px 0;
+        }
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body style="background-color: #f8f9fa;">
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/">Harare Property Valuation</a>
+            <div class="navbar-nav">
+                <a class="nav-link" href="/">Home</a>
+                <a class="nav-link" href="/dashboard">Dashboard</a>
+                <a class="nav-link active" href="/spatial-analysis">Spatial Analysis</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <h1 class="mb-4">Spatial Analysis of Property Values in Harare</h1>
+        
+        <!-- Map Section -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h4>Property Value Distribution Map</h4>
+                        <p class="text-muted">Interactive map showing property values across different locations in Harare</p>
+                        <div id="map"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Analysis Cards -->
+        <div class="row mt-4">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h4>Location-Based Insights</h4>
+                        <div id="location-insights">
+                            <p>Loading location insights...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-body">
+                        <h4>Value Hotspots</h4>
+                        <div id="hotspots">
+                            <p>Loading hotspot analysis...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Statistical Analysis -->
+        <div class="row mt-4">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        <h4>Spatial Statistics</h4>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <div class="text-center">
+                                    <h5 id="avg-location-value">-</h5>
+                                    <p>Average Value per Location</p>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="text-center">
+                                    <h5 id="highest-value-location">-</h5>
+                                    <p>Highest Value Location</p>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="text-center">
+                                    <h5 id="lowest-value-location">-</h5>
+                                    <p>Lowest Value Location</p>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="text-center">
+                                    <h5 id="location-count">-</h5>
+                                    <p>Total Locations</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        // Harare coordinates
+        const harareCoords = [-17.8252, 31.0335];
+        let map, markers = [];
+
+        $(document).ready(function() {
+            initializeMap();
+            loadSpatialData();
+        });
+
+        function initializeMap() {
+            map = L.map('map').setView(harareCoords, 12);
+            
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+
+            // Add legend
+            const legend = L.control({position: 'bottomright'});
+            legend.onAdd = function() {
+                const div = L.DomUtil.create('div', 'legend');
+                div.innerHTML = `
+                    <h6>Property Values</h6>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #ff0000;"></div>
+                        <span>High (>$150k)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #ffa500;"></div>
+                        <span>Medium ($100k-$150k)</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #ffff00;"></div>
+                        <span>Low (<$100k)</span>
+                    </div>
+                `;
+                return div;
+            };
+            legend.addTo(map);
+        }
+
+        function loadSpatialData() {
+            $.ajax({
+                url: '/api/property-data',
+                method: 'GET',
+                success: function(response) {
+                    if (response.success) {
+                        processSpatialData(response.data);
+                    }
+                },
+                error: function() {
+                    console.log('Error loading spatial data');
+                }
+            });
+        }
+
+        function processSpatialData(data) {
+            // Define location coordinates (approximate Harare locations)
+            const locationCoords = {
+                'CBD': [-17.8252, 31.0335],
+                'Avenues': [-17.8189, 31.0494],
+                'Eastlea': [-17.8318, 31.0833],
+                'Avondale': [-17.7928, 31.0250],
+                'Borrowdale': [-17.7562, 31.0772],
+                'Mount Pleasant': [-17.7833, 31.0333],
+                'Highlands': [-17.7833, 31.0333],
+                'Glen Lorne': [-17.7833, 31.0333],
+                'Chisipite': [-17.7833, 31.0333],
+                'Borrowdale Brooke': [-17.7833, 31.0333]
+            };
+
+            // Group data by location
+            const locationData = {};
+            data.forEach(item => {
+                const location = item['Location'];
+                if (!locationData[location]) {
+                    locationData[location] = [];
+                }
+                locationData[location].push(item);
+            });
+
+            // Add markers to map
+            Object.keys(locationData).forEach(location => {
+                const properties = locationData[location];
+                const avgValue = properties.reduce((sum, prop) => sum + prop['Market Value'], 0) / properties.length;
+                const coords = locationCoords[location] || harareCoords;
+
+                const color = getValueColor(avgValue);
+                const marker = L.circleMarker(coords, {
+                    radius: Math.min(properties.length * 2, 20),
+                    fillColor: color,
+                    color: '#000',
+                    weight: 1,
+                    opacity: 1,
+                    fillOpacity: 0.8
+                }).addTo(map);
+
+                marker.bindPopup(`
+                    <b>${location}</b><br>
+                    Properties: ${properties.length}<br>
+                    Average Value: $${avgValue.toLocaleString()}<br>
+                    Range: $${Math.min(...properties.map(p => p['Market Value'])).toLocaleString()} - 
+                    $${Math.max(...properties.map(p => p['Market Value'])).toLocaleString()}
+                `);
+
+                markers.push(marker);
+            });
+
+            updateSpatialStatistics(locationData);
+        }
+
+        function getValueColor(value) {
+            if (value > 150000) return '#ff0000'; // Red for high values
+            if (value > 100000) return '#ffa500'; // Orange for medium values
+            return '#ffff00'; // Yellow for low values
+        }
+
+        function updateSpatialStatistics(locationData) {
+            const locations = Object.keys(locationData);
+            const avgValues = locations.map(loc => {
+                const properties = locationData[loc];
+                return {
+                    location: loc,
+                    avgValue: properties.reduce((sum, prop) => sum + prop['Market Value'], 0) / properties.length
+                };
+            });
+
+            const sortedByValue = avgValues.sort((a, b) => b.avgValue - a.avgValue);
+            const highest = sortedByValue[0];
+            const lowest = sortedByValue[sortedByValue.length - 1];
+            const overallAvg = avgValues.reduce((sum, item) => sum + item.avgValue, 0) / avgValues.length;
+
+            $('#avg-location-value').text('$' + overallAvg.toLocaleString(undefined, {maximumFractionDigits: 0}));
+            $('#highest-value-location').text(highest.location + ' ($' + highest.avgValue.toLocaleString(undefined, {maximumFractionDigits: 0}) + ')');
+            $('#lowest-value-location').text(lowest.location + ' ($' + lowest.avgValue.toLocaleString(undefined, {maximumFractionDigits: 0}) + ')');
+            $('#location-count').text(locations.length);
+
+            // Update insights
+            $('#location-insights').html(`
+                <ul>
+                    <li><strong>Highest Value Area:</strong> ${highest.location} with average value of $${highest.avgValue.toLocaleString()}</li>
+                    <li><strong>Lowest Value Area:</strong> ${lowest.location} with average value of $${lowest.avgValue.toLocaleString()}</li>
+                    <li><strong>Value Range:</strong> $${(highest.avgValue - lowest.avgValue).toLocaleString()} difference between highest and lowest areas</li>
+                </ul>
+            `);
+
+            $('#hotspots').html(`
+                <ul>
+                    <li><strong>Premium Areas:</strong> ${sortedByValue.slice(0, 3).map(item => item.location).join(', ')}</li>
+                    <li><strong>Affordable Areas:</strong> ${sortedByValue.slice(-3).map(item => item.location).join(', ')}</li>
+                    <li><strong>Market Diversity:</strong> ${locations.length} distinct market segments identified</li>
+                </ul>
+            `);
+        }
+    </script>
+</body>
+</html> 

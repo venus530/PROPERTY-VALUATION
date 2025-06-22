@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select an Option</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        body {
+            background: #f8f9fa;
+        }
+        .options-container {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .card {
+            margin: 1rem;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .card:hover {
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+<div class="options-container">
+    <div class="container text-center">
+        <h2 class="mb-5">What would you like to do?</h2>
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card" onclick="window.location.href='/predict-form?mode=sell'">
+                    <div class="card-body">
+                        <h5 class="card-title">Predict and Sell Property</h5>
+                        <p class="card-text">Get a valuation for a property you want to list for sale.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card" onclick="window.location.href='/predict-form?mode=buy'">
+                    <div class="card-body">
+                        <h5 class="card-title">Buy a Property</h5>
+                        <p class="card-text">Estimate the value of a property you are interested in buying.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card" onclick="window.location.href='/predict-form?mode=predict'">
+                    <div class="card-body">
+                        <h5 class="card-title">Predict Only</h5>
+                        <p class="card-text">Get a quick property value estimate for research purposes.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html> 
