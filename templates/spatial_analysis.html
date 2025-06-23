@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spatial Analysis - Harare Property Values</title>
+    <title>Spatial Analysis - RESIDENTIAL PROPERTY VALUATION</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -35,7 +35,7 @@
 <body style="background-color: #f8f9fa;">
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <div class="container">
-            <a class="navbar-brand" href="/">Harare Property Valuation</a>
+            <a class="navbar-brand" href="/">RESIDENTIAL PROPERTY VALUATION</a>
             <div class="navbar-nav">
                 <a class="nav-link" href="/">Home</a>
                 <a class="nav-link" href="/dashboard">Dashboard</a>
@@ -148,9 +148,21 @@
                     <h6>Property Locations</h6>
                     <div class="legend-item">
                         <div class="legend-color" style="background: #ff0000; border-radius: 50%; width: 12px; height: 12px;"></div>
-                        <span>Property Location</span>
+                        <span>High Density</span>
                     </div>
-                    <p style="font-size: 12px; margin: 5px 0 0 0;">Click on any red dot to see the location name</p>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #0000ff; border-radius: 50%; width: 12px; height: 12px;"></div>
+                        <span>Medium Density</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #00cc44; border-radius: 50%; width: 12px; height: 12px;"></div>
+                        <span>Low Density</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #888; border-radius: 50%; width: 12px; height: 12px;"></div>
+                        <span>Other/Unknown</span>
+                    </div>
+                    <p style="font-size: 12px; margin: 5px 0 0 0;">Hover over any dot to see property details</p>
                 `;
                 return div;
             };
@@ -184,16 +196,41 @@
                 const lat = parseFloat(item['Latitude']);
                 const lon = parseFloat(item['Longitude']);
                 const location = item['Location'];
+                // Determine color by density
+                let color = '#000';
+                if (location.toLowerCase().includes('high density')) color = '#ff0000'; // red
+                else if (location.toLowerCase().includes('medium density')) color = '#0000ff'; // blue
+                else if (location.toLowerCase().includes('low density')) color = '#00cc44'; // green
+                else color = '#888'; // fallback gray
                 if (!isNaN(lat) && !isNaN(lon)) {
                     const dot = L.circleMarker([lat, lon], {
                         radius: 4,
-                        fillColor: '#ff0000',
-                        color: '#cc0000',
+                        fillColor: color,
+                        color: color,
                         weight: 1,
                         opacity: 1,
                         fillOpacity: 0.8
                     }).addTo(map);
-                    
+                    // Tooltip with all attributes
+                    const tooltipContent = `
+                        <b>Location:</b> ${location}<br>
+                        <b>Type:</b> ${item['Property Type']}<br>
+                        <b>Area:</b> ${item['Area']} sqm<br>
+                        <b>Rooms:</b> ${item['Number of rooms']}<br>
+                        <b>Structures:</b> ${item['Number of structures']}<br>
+                        <b>Swimming Pool:</b> ${item['Swimming Pool']}<br>
+                        <b>Boundary:</b> ${item['Boundary']}<br>
+                        <b>Age:</b> ${item['Age Category']}<br>
+                        <b>Land Rate:</b> ${item['Land Rate']}<br>
+                        <b>Market Value:</b> $${Number(item['Market Value']).toLocaleString()}<br>
+                        <b>Proximity to Schools:</b> ${item['Proximity to schools(km)']} km<br>
+                        <b>Proximity to Healthcare:</b> ${item['Proximity to healthcare(km)']} km<br>
+                        <b>Proximity to Malls:</b> ${item['Proximity to malls(km)']} km<br>
+                        <b>Proximity to Highway:</b> ${item['Proximity to highway(km)']} km<br>
+                        <b>Latitude:</b> ${item['Latitude']}<br>
+                        <b>Longitude:</b> ${item['Longitude']}
+                    `;
+                    dot.bindTooltip(tooltipContent, {direction: 'top', sticky: true, className: 'leaflet-tooltip'});
                     dot.bindPopup(`<b>Location:</b> ${location}`);
                     markers.push(dot);
                 }

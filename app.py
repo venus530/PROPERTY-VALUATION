@@ -139,6 +139,26 @@ def get_property_data():
             'error': str(e)
         })
 
+@app.route('/buy')
+def buy():
+    """Page to list available properties for sale (demo: all from CSV)."""
+    try:
+        df = pd.read_csv('PROPERTYVALUATIONS.csv')
+        # Show a sample of 20 for demo, or all if you prefer
+        properties = df.head(20).to_dict('records')
+        return render_template('buy.html', properties=properties)
+    except Exception as e:
+        return f"Error loading properties: {e}", 500
+
+@app.route('/api/available-properties')
+def api_available_properties():
+    """API endpoint for available properties (for map/listing)."""
+    try:
+        df = pd.read_csv('PROPERTYVALUATIONS.csv')
+        return jsonify({'success': True, 'data': df.to_dict('records')})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
+
 if __name__ == '__main__':
     # Get port from environment variable (for Render) or use 5000 for local development
     port = int(os.environ.get('PORT', 5000))

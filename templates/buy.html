@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Available Properties - RESIDENTIAL PROPERTY VALUATION</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        #buy-map { height: 400px; width: 100%; border-radius: 10px; margin-bottom: 30px; }
+        .property-card { margin-bottom: 20px; }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+    <div class="container">
+        <a class="navbar-brand" href="/">RESIDENTIAL PROPERTY VALUATION</a>
+        <div class="navbar-nav">
+            <a class="nav-link" href="/">Home</a>
+            <a class="nav-link" href="/dashboard">Dashboard</a>
+            <a class="nav-link" href="/spatial-analysis">Spatial Analysis</a>
+        </div>
+    </div>
+</nav>
+<div class="container mt-4">
+    <h2 class="mb-4 text-center">Available Properties for Sale</h2>
+    <div id="buy-map"></div>
+    <div class="row">
+        {% for prop in properties %}
+        <div class="col-md-6">
+            <div class="card property-card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">{{ prop['Property Type']|title }} in {{ prop['Location'] }}</h5>
+                    <p class="card-text mb-1"><b>Area:</b> {{ prop['Area'] }} sqm</p>
+                    <p class="card-text mb-1"><b>Rooms:</b> {{ prop['Number of rooms'] }}</p>
+                    <p class="card-text mb-1"><b>Structures:</b> {{ prop['Number of structures'] }}</p>
+                    <p class="card-text mb-1"><b>Swimming Pool:</b> {{ prop['Swimming Pool'] }}</p>
+                    <p class="card-text mb-1"><b>Boundary:</b> {{ prop['Boundary'] }}</p>
+                    <p class="card-text mb-1"><b>Age:</b> {{ prop['Age Category'] }}</p>
+                    <p class="card-text mb-1"><b>Land Rate:</b> {{ prop['Land Rate'] }}</p>
+                    <p class="card-text mb-1"><b>Market Value:</b> <span style="color:green; font-weight:bold;">${{ '{:,.2f}'.format(prop['Market Value']) }}</span></p>
+                    <p class="card-text mb-1"><b>Latitude:</b> {{ prop['Latitude'] }}, <b>Longitude:</b> {{ prop['Longitude'] }}</p>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    const harareCoords = [-17.8252, 31.0335];
+    let buyMap;
+    $(document).ready(function() {
+        buyMap = L.map('buy-map').setView(harareCoords, 12);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '\u00a9 OpenStreetMap contributors'
+        }).addTo(buyMap);
+        // Plot properties
+        {% for prop in properties %}
+        if (!isNaN({{ prop['Latitude'] }}) && !isNaN({{ prop['Longitude'] }})) {
+            const marker = L.marker([{{ prop['Latitude'] }}, {{ prop['Longitude'] }}]).addTo(buyMap);
+            marker.bindPopup(`<b>{{ prop['Property Type']|title }}</b><br>Location: {{ prop['Location'] }}<br>Value: ${{ '{:,.2f}'.format(prop['Market Value']) }}`);
+        }
+        {% endfor %}
+    });
+</script>
+</body>
+</html> 
