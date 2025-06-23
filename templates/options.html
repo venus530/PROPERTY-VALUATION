@@ -3,14 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Select an Option</title>
+    <title>Select an Option - Harare Property Valuation</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
         body {
             background: #f8f9fa;
         }
         .options-container {
-            min-height: 100vh;
+            min-height: 50vh;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -23,39 +25,136 @@
         .card:hover {
             transform: scale(1.05);
         }
+        #property-map {
+            height: 400px;
+            width: 100%;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        .map-section {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
     </style>
 </head>
 <body>
-<div class="options-container">
-    <div class="container text-center">
-        <h2 class="mb-5">What would you like to do?</h2>
-        <div class="row">
-            <div class="col-md-4">
-                <div class="card" onclick="window.location.href='/predict-form?mode=sell'">
-                    <div class="card-body">
-                        <h5 class="card-title">Predict and Sell Property</h5>
-                        <p class="card-text">Get a valuation for a property you want to list for sale.</p>
-                    </div>
-                </div>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/">Harare Property Valuation</a>
+            <div class="navbar-nav">
+                <a class="nav-link" href="/">Home</a>
+                <a class="nav-link" href="/dashboard">Dashboard</a>
+                <a class="nav-link" href="/spatial-analysis">Spatial Analysis</a>
             </div>
-            <div class="col-md-4">
-                <div class="card" onclick="window.location.href='/predict-form?mode=buy'">
-                    <div class="card-body">
-                        <h5 class="card-title">Buy a Property</h5>
-                        <p class="card-text">Estimate the value of a property you are interested in buying.</p>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        <div class="options-container">
+            <div class="container text-center">
+                <h2 class="mb-5">What would you like to do?</h2>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="card" onclick="window.location.href='/predict-form?mode=sell'">
+                            <div class="card-body">
+                                <h5 class="card-title">Predict and Sell Property</h5>
+                                <p class="card-text">Get a valuation for a property you want to list for sale.</p>
+                            </div>
+                        </div>
                     </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card" onclick="window.location.href='/predict-form?mode=predict'">
-                    <div class="card-body">
-                        <h5 class="card-title">Predict Only</h5>
-                        <p class="card-text">Get a quick property value estimate for research purposes.</p>
+                    <div class="col-md-4">
+                        <div class="card" onclick="window.location.href='/predict-form?mode=buy'">
+                            <div class="card-body">
+                                <h5 class="card-title">Buy a Property</h5>
+                                <p class="card-text">Estimate the value of a property you are interested in buying.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card" onclick="window.location.href='/predict-form?mode=predict'">
+                            <div class="card-body">
+                                <h5 class="card-title">Predict Only</h5>
+                                <p class="card-text">Get a quick property value estimate for research purposes.</p>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
+
+        <!-- Property Map Section -->
+        <div class="map-section">
+            <h3 class="text-center mb-4">Property Locations in Harare</h3>
+            <p class="text-center text-muted mb-4">Explore properties across different locations in Harare. Click on any point to see the location name.</p>
+            <div id="property-map"></div>
+        </div>
     </div>
-</div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        // Harare coordinates
+        const harareCoords = [-17.8252, 31.0335];
+        let map, markers = [];
+
+        $(document).ready(function() {
+            initializeMap();
+            loadPropertyData();
+        });
+
+        function initializeMap() {
+            map = L.map('property-map').setView(harareCoords, 12);
+            
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+        }
+
+        function loadPropertyData() {
+            $.ajax({
+                url: '/api/property-data',
+                method: 'GET',
+                success: function(response) {
+                    if (response.success) {
+                        plotProperties(response.data);
+                    }
+                },
+                error: function() {
+                    console.log('Error loading property data');
+                }
+            });
+        }
+
+        function plotProperties(data) {
+            // Remove any existing markers
+            if (markers.length > 0) {
+                markers.forEach(m => map.removeLayer(m));
+                markers = [];
+            }
+
+            // Plot each property as a small red dot with a popup showing the Location name
+            data.forEach(item => {
+                const lat = parseFloat(item['Latitude']);
+                const lon = parseFloat(item['Longitude']);
+                const location = item['Location'];
+                
+                if (!isNaN(lat) && !isNaN(lon)) {
+                    const dot = L.circleMarker([lat, lon], {
+                        radius: 4,
+                        fillColor: '#ff0000',
+                        color: '#cc0000',
+                        weight: 1,
+                        opacity: 1,
+                        fillOpacity: 0.8
+                    }).addTo(map);
+                    
+                    dot.bindPopup(`<b>Location:</b> ${location}`);
+                    markers.push(dot);
+                }
+            });
+        }
+    </script>
 </body>
 </html> 
