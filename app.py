@@ -23,6 +23,8 @@ def load_model():
         print("Model files not found. Please run main.py first to train and save the model.")
         return None, None, None
 
+# Initialize model variables (commented out due to compatibility issues)
+model, preprocessor, metadata = None, None, None
 #model, preprocessor, metadata = load_model()
 
 # Initialize model explainer
@@ -106,19 +108,35 @@ def predict():
         
         # Create DataFrame and predict
         df = pd.DataFrame([data])
+        
+        # Check if preprocessor and model are available
+        if preprocessor is None or model is None:
+            return jsonify({
+                'success': False, 
+                'error': 'Model not available due to compatibility issues. Please contact support.'
+            })
+            
         X_processed = preprocessor.transform(df)
         prediction = model.predict(X_processed)[0]
+        
+        # Check if metadata is available
+        model_info = "Gradient Boosting Model"
+        if metadata is not None and 'performance' in metadata:
+            model_info = f"Gradient Boosting Model - MAE: ${metadata['performance']['MAE']:,.2f}"
         
         return jsonify({
             'success': True,
             'prediction': f"${prediction:,.2f}",
             'location': detected_location,
             'confidence': 'High (R² = 0.93)',
-            'model_info': f"Gradient Boosting Model - MAE: ${metadata['performance']['MAE']:,.2f}"
+            'model_info': model_info
         })
         
     except Exception as e:
-        return jsonify({'success': False, 'error': str(e)})
+        return jsonify({
+            'success': False,
+            'error': str(e)
+        })
 
 @app.route('/dashboard')
 def dashboard():
@@ -148,4 +166,15 @@ def get_property_data():
         })
     except Exception as e:
         return jsonify({
+            'success': False,
+            'error': str(e)
+        })
+
+@app.route('/buy')
+def buy():
+    """Buy page for property listings."""
+    return render_template('buy.html')
+
+if __name__ == '__main__':
+    app.run(debug=True)
 
