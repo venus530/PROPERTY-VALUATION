@@ -23,7 +23,7 @@ def load_model():
         print("Model files not found. Please run main.py first to train and save the model.")
         return None, None, None
 
-model, preprocessor, metadata = load_model()
+#model, preprocessor, metadata = load_model()
 
 # Initialize model explainer
 try:
@@ -148,6 +148,210 @@ def get_property_data():
         })
     except Exception as e:
         return jsonify({
+
+Live tail
+GMT+2
+
+Menu
+Collecting fonttools>=4.22.0
+  Downloading fonttools-4.58.4-cp310-cp310-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (4.8 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4.8/4.8 MB 24.2 MB/s eta 0:00:00
+Collecting kiwisolver>=1.0.1
+  Downloading kiwisolver-1.4.8-cp310-cp310-manylinux_2_12_x86_64.manylinux2010_x86_64.whl (1.6 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.6/1.6 MB 9.8 MB/s eta 0:00:00
+Collecting cycler>=0.10
+  Downloading cycler-0.12.1-py3-none-any.whl (8.3 kB)
+Collecting contourpy>=1.0.1
+  Downloading contourpy-1.3.2-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (325 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 325.0/325.0 kB 981.2 kB/s eta 0:00:00
+Collecting geographiclib<3,>=1.52
+  Downloading geographiclib-2.0-py3-none-any.whl (40 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 40.3/40.3 kB 166.4 kB/s eta 0:00:00
+Collecting cloudpickle
+  Downloading cloudpickle-3.1.1-py3-none-any.whl (20 kB)
+Collecting slicer==0.0.7
+  Downloading slicer-0.0.7-py3-none-any.whl (14 kB)
+Collecting tqdm>=4.27.0
+  Downloading tqdm-4.67.1-py3-none-any.whl (78 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 78.5/78.5 kB 11.7 MB/s eta 0:00:00
+Collecting numba
+  Downloading numba-0.61.2-cp310-cp310-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (3.8 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.8/3.8 MB 100.6 MB/s eta 0:00:00
+Collecting tenacity>=6.2.0
+  Downloading tenacity-9.1.2-py3-none-any.whl (28 kB)
+Collecting MarkupSafe>=2.0
+  Downloading MarkupSafe-3.0.2-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (20 kB)
+Collecting six>=1.5
+  Downloading six-1.17.0-py2.py3-none-any.whl (11 kB)
+Collecting llvmlite<0.45,>=0.44.0dev0
+  Downloading llvmlite-0.44.0-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (42.4 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 42.4/42.4 MB 47.2 MB/s eta 0:00:00
+Collecting numba
+  Downloading numba-0.61.0-cp310-cp310-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (3.8 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.8/3.8 MB 137.2 MB/s eta 0:00:00
+  Downloading numba-0.60.0-cp310-cp310-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (3.7 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.7/3.7 MB 126.5 MB/s eta 0:00:00
+Collecting llvmlite<0.44,>=0.43.0dev0
+  Downloading llvmlite-0.43.0-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (43.9 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 43.9/43.9 MB 45.3 MB/s eta 0:00:00
+Installing collected packages: pytz, tqdm, threadpoolctl, tenacity, slicer, six, pyparsing, pillow, packaging, numpy, MarkupSafe, llvmlite, kiwisolver, joblib, itsdangerous, geographiclib, fonttools, cycler, cloudpickle, click, blinker, Werkzeug, scipy, python-dateutil, plotly, numba, Jinja2, gunicorn, geopy, contourpy, scikit-learn, pandas, matplotlib, Flask, shap, seaborn
+Successfully installed Flask-2.3.3 Jinja2-3.1.6 MarkupSafe-3.0.2 Werkzeug-3.1.3 blinker-1.9.0 click-8.2.1 cloudpickle-3.1.1 contourpy-1.3.2 cycler-0.12.1 fonttools-4.58.4 geographiclib-2.0 geopy-2.3.0 gunicorn-21.2.0 itsdangerous-2.2.0 joblib-1.2.0 kiwisolver-1.4.8 llvmlite-0.43.0 matplotlib-3.7.2 numba-0.60.0 numpy-1.23.5 packaging-25.0 pandas-1.5.3 pillow-11.2.1 plotly-5.17.0 pyparsing-3.0.9 python-dateutil-2.9.0.post0 pytz-2025.2 scikit-learn-1.2.2 scipy-1.15.3 seaborn-0.12.2 shap-0.43.0 six-1.17.0 slicer-0.0.7 tenacity-9.1.2 threadpoolctl-3.6.0 tqdm-4.67.1
+[notice] A new release of pip is available: 23.0.1 -> 25.1.1
+[notice] To update, run: pip install --upgrade pip
+==> Uploading build...
+==> Uploaded in 15.1s. Compression took 5.9s
+==> Build successful 🎉
+==> Deploying...
+==> Running 'gunicorn app:app'
+==> No open ports detected, continuing to scan...
+==> Docs on specifying a port: https://render.com/docs/web-services#port-binding
+Matplotlib is building the font cache; this may take a moment.
+Traceback (most recent call last):
+  File "/opt/render/project/src/.venv/bin/gunicorn", line 8, in <module>
+    sys.exit(run())
+  File "/opt/render/project/src/.venv/lib/python3.10/site-packages/gunicorn/app/wsgiapp.py", line 67, in run
+    WSGIApplication("%(prog)s [OPTIONS] [APP_MODULE]").run()
+  File "/opt/render/project/src/.venv/lib/python3.10/site-packages/gunicorn/app/base.py", line 236, in run
+    super().run()
+  File "/opt/render/project/src/.venv/lib/python3.10/site-packages/gunicorn/app/base.py", line 72, in run
+    Arbiter(self).run()
+  File "/opt/render/project/src/.venv/lib/python3.10/site-packages/gunicorn/arbiter.py", line 58, in __init__
+    self.setup(app)
+  File "/opt/render/project/src/.venv/lib/python3.10/site-packages/gunicorn/arbiter.py", line 118, in setup
+    self.app.wsgi()
+  File "/opt/render/project/src/.venv/lib/python3.10/site-packages/gunicorn/app/base.py", line 67, in wsgi
+    self.callable = self.load()
+  File "/opt/render/project/src/.venv/lib/python3.10/site-packages/gunicorn/app/wsgiapp.py", line 58, in load
+    return self.load_wsgiapp()
+  File "/opt/render/project/src/.venv/lib/python3.10/site-packages/gunicorn/app/wsgiapp.py", line 48, in load_wsgiapp
+    return util.import_app(self.app_uri)
+  File "/opt/render/project/src/.venv/lib/python3.10/site-packages/gunicorn/util.py", line 371, in import_app
+    mod = importlib.import_module(module)
+  File "/opt/render/project/python/Python-3.10.11/lib/python3.10/importlib/__init__.py", line 126, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+  File "<frozen importlib._bootstrap>", line 1050, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1027, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1006, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 688, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 883, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/render/project/src/app.py", line 26, in <module>
+    model, preprocessor, metadata = load_model()
+  File "/opt/render/project/src/app.py", line 17, in load_model
+    model = joblib.load('models/best_model_gradient_boosting.joblib')
+  File "/opt/render/project/src/.venv/lib/python3.10/site-packages/joblib/numpy_pickle.py", line 658, in load
+    obj = _unpickle(fobj, filename, mmap_mode)
+  File "/opt/render/project/src/.venv/lib/python3.10/site-packages/joblib/numpy_pickle.py", line 577, in _unpickle
+    obj = unpickler.load()
+  File "/opt/render/project/python/Python-3.10.11/lib/python3.10/pickle.py", line 1213, in load
+    dispatch[key[0]](self)
+  File "/opt/render/project/python/Python-3.10.11/lib/python3.10/pickle.py", line 1538, in load_stack_global
+    self.append(self.find_class(module, name))
+  File "/opt/render/project/python/Python-3.10.11/lib/python3.10/pickle.py", line 1580, in find_class
+    __import__(module, level=0)
+ModuleNotFoundError: No module named '_loss'
+
+Live tail
+GMT+2
+
+Menu
+Collecting fonttools>=4.22.0
+  Downloading fonttools-4.58.4-cp310-cp310-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (4.8 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 4.8/4.8 MB 24.2 MB/s eta 0:00:00
+Collecting kiwisolver>=1.0.1
+  Downloading kiwisolver-1.4.8-cp310-cp310-manylinux_2_12_x86_64.manylinux2010_x86_64.whl (1.6 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.6/1.6 MB 9.8 MB/s eta 0:00:00
+Collecting cycler>=0.10
+  Downloading cycler-0.12.1-py3-none-any.whl (8.3 kB)
+Collecting contourpy>=1.0.1
+  Downloading contourpy-1.3.2-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (325 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 325.0/325.0 kB 981.2 kB/s eta 0:00:00
+Collecting geographiclib<3,>=1.52
+  Downloading geographiclib-2.0-py3-none-any.whl (40 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 40.3/40.3 kB 166.4 kB/s eta 0:00:00
+Collecting cloudpickle
+  Downloading cloudpickle-3.1.1-py3-none-any.whl (20 kB)
+Collecting slicer==0.0.7
+  Downloading slicer-0.0.7-py3-none-any.whl (14 kB)
+Collecting tqdm>=4.27.0
+  Downloading tqdm-4.67.1-py3-none-any.whl (78 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 78.5/78.5 kB 11.7 MB/s eta 0:00:00
+Collecting numba
+  Downloading numba-0.61.2-cp310-cp310-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (3.8 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.8/3.8 MB 100.6 MB/s eta 0:00:00
+Collecting tenacity>=6.2.0
+  Downloading tenacity-9.1.2-py3-none-any.whl (28 kB)
+Collecting MarkupSafe>=2.0
+  Downloading MarkupSafe-3.0.2-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (20 kB)
+Collecting six>=1.5
+  Downloading six-1.17.0-py2.py3-none-any.whl (11 kB)
+Collecting llvmlite<0.45,>=0.44.0dev0
+  Downloading llvmlite-0.44.0-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (42.4 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 42.4/42.4 MB 47.2 MB/s eta 0:00:00
+Collecting numba
+  Downloading numba-0.61.0-cp310-cp310-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (3.8 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.8/3.8 MB 137.2 MB/s eta 0:00:00
+  Downloading numba-0.60.0-cp310-cp310-manylinux2014_x86_64.manylinux_2_17_x86_64.whl (3.7 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 3.7/3.7 MB 126.5 MB/s eta 0:00:00
+Collecting llvmlite<0.44,>=0.43.0dev0
+  Downloading llvmlite-0.43.0-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (43.9 MB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 43.9/43.9 MB 45.3 MB/s eta 0:00:00
+Installing collected packages: pytz, tqdm, threadpoolctl, tenacity, slicer, six, pyparsing, pillow, packaging, numpy, MarkupSafe, llvmlite, kiwisolver, joblib, itsdangerous, geographiclib, fonttools, cycler, cloudpickle, click, blinker, Werkzeug, scipy, python-dateutil, plotly, numba, Jinja2, gunicorn, geopy, contourpy, scikit-learn, pandas, matplotlib, Flask, shap, seaborn
+Successfully installed Flask-2.3.3 Jinja2-3.1.6 MarkupSafe-3.0.2 Werkzeug-3.1.3 blinker-1.9.0 click-8.2.1 cloudpickle-3.1.1 contourpy-1.3.2 cycler-0.12.1 fonttools-4.58.4 geographiclib-2.0 geopy-2.3.0 gunicorn-21.2.0 itsdangerous-2.2.0 joblib-1.2.0 kiwisolver-1.4.8 llvmlite-0.43.0 matplotlib-3.7.2 numba-0.60.0 numpy-1.23.5 packaging-25.0 pandas-1.5.3 pillow-11.2.1 plotly-5.17.0 pyparsing-3.0.9 python-dateutil-2.9.0.post0 pytz-2025.2 scikit-learn-1.2.2 scipy-1.15.3 seaborn-0.12.2 shap-0.43.0 six-1.17.0 slicer-0.0.7 tenacity-9.1.2 threadpoolctl-3.6.0 tqdm-4.67.1
+[notice] A new release of pip is available: 23.0.1 -> 25.1.1
+[notice] To update, run: pip install --upgrade pip
+==> Uploading build...
+==> Uploaded in 15.1s. Compression took 5.9s
+==> Build successful 🎉
+==> Deploying...
+==> Running 'gunicorn app:app'
+==> No open ports detected, continuing to scan...
+==> Docs on specifying a port: https://render.com/docs/web-services#port-binding
+Matplotlib is building the font cache; this may take a moment.
+Traceback (most recent call last):
+  File "/opt/render/project/src/.venv/bin/gunicorn", line 8, in <module>
+    sys.exit(run())
+  File "/opt/render/project/src/.venv/lib/python3.10/site-packages/gunicorn/app/wsgiapp.py", line 67, in run
+    WSGIApplication("%(prog)s [OPTIONS] [APP_MODULE]").run()
+  File "/opt/render/project/src/.venv/lib/python3.10/site-packages/gunicorn/app/base.py", line 236, in run
+    super().run()
+  File "/opt/render/project/src/.venv/lib/python3.10/site-packages/gunicorn/app/base.py", line 72, in run
+    Arbiter(self).run()
+  File "/opt/render/project/src/.venv/lib/python3.10/site-packages/gunicorn/arbiter.py", line 58, in __init__
+    self.setup(app)
+  File "/opt/render/project/src/.venv/lib/python3.10/site-packages/gunicorn/arbiter.py", line 118, in setup
+    self.app.wsgi()
+  File "/opt/render/project/src/.venv/lib/python3.10/site-packages/gunicorn/app/base.py", line 67, in wsgi
+    self.callable = self.load()
+  File "/opt/render/project/src/.venv/lib/python3.10/site-packages/gunicorn/app/wsgiapp.py", line 58, in load
+    return self.load_wsgiapp()
+  File "/opt/render/project/src/.venv/lib/python3.10/site-packages/gunicorn/app/wsgiapp.py", line 48, in load_wsgiapp
+    return util.import_app(self.app_uri)
+  File "/opt/render/project/src/.venv/lib/python3.10/site-packages/gunicorn/util.py", line 371, in import_app
+    mod = importlib.import_module(module)
+  File "/opt/render/project/python/Python-3.10.11/lib/python3.10/importlib/__init__.py", line 126, in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+  File "<frozen importlib._bootstrap>", line 1050, in _gcd_import
+  File "<frozen importlib._bootstrap>", line 1027, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1006, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 688, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 883, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/opt/render/project/src/app.py", line 26, in <module>
+    model, preprocessor, metadata = load_model()
+  File "/opt/render/project/src/app.py", line 17, in load_model
+    model = joblib.load('models/best_model_gradient_boosting.joblib')
+  File "/opt/render/project/src/.venv/lib/python3.10/site-packages/joblib/numpy_pickle.py", line 658, in load
+    obj = _unpickle(fobj, filename, mmap_mode)
+  File "/opt/render/project/src/.venv/lib/python3.10/site-packages/joblib/numpy_pickle.py", line 577, in _unpickle
+    obj = unpickler.load()
+  File "/opt/render/project/python/Python-3.10.11/lib/python3.10/pickle.py", line 1213, in load
+    dispatch[key[0]](self)
+  File "/opt/render/project/python/Python-3.10.11/lib/python3.10/pickle.py", line 1538, in load_stack_global
+    self.append(self.find_class(module, name))
+  File "/opt/render/project/python/Python-3.10.11/lib/python3.10/pickle.py", line 1580, in find_class
+    __import__(module, level=0)
+ModuleNotFoundError: No module named '_loss'
             'success': False,
             'error': str(e)
         })
