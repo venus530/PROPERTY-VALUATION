@@ -88,7 +88,7 @@
         <!-- Property Map Section -->
         <div class="map-section">
             <h3 class="text-center mb-4">Property Locations in Harare</h3>
-            <p class="text-center text-muted mb-4">Explore properties across different locations in Harare. Click on any point to see the location name.</p>
+            <p class="text-center text-muted mb-4">Explore properties across different locations in Harare. Properties are color-coded by residential density levels.</p>
             <div id="property-map"></div>
         </div>
     </div>
@@ -110,6 +110,37 @@
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '© OpenStreetMap contributors'
             }).addTo(map);
+
+            // Add legend
+            const legend = L.control({position: 'bottomright'});
+            legend.onAdd = function() {
+                const div = L.DomUtil.create('div', 'legend');
+                div.style.backgroundColor = 'white';
+                div.style.padding = '10px';
+                div.style.borderRadius = '5px';
+                div.style.boxShadow = '0 2px 8px rgba(0,0,0,0.15)';
+                div.innerHTML = `
+                    <h6 style="margin: 0 0 10px 0;">Residential Density</h6>
+                    <div style="display: flex; align-items: center; margin: 5px 0;">
+                        <div style="width: 15px; height: 15px; background: #ff0000; border-radius: 50%; margin-right: 8px;"></div>
+                        <span style="font-size: 12px;">High Density</span>
+                    </div>
+                    <div style="display: flex; align-items: center; margin: 5px 0;">
+                        <div style="width: 15px; height: 15px; background: #0000ff; border-radius: 50%; margin-right: 8px;"></div>
+                        <span style="font-size: 12px;">Medium Density</span>
+                    </div>
+                    <div style="display: flex; align-items: center; margin: 5px 0;">
+                        <div style="width: 15px; height: 15px; background: #00cc44; border-radius: 50%; margin-right: 8px;"></div>
+                        <span style="font-size: 12px;">Low Density</span>
+                    </div>
+                    <div style="display: flex; align-items: center; margin: 5px 0;">
+                        <div style="width: 15px; height: 15px; background: #888888; border-radius: 50%; margin-right: 8px;"></div>
+                        <span style="font-size: 12px;">Other/Unknown</span>
+                    </div>
+                `;
+                return div;
+            };
+            legend.addTo(map);
         }
 
         function loadPropertyData() {
@@ -127,6 +158,14 @@
             });
         }
 
+        function getDensityColor(location) {
+            const locationLower = location.toLowerCase();
+            if (locationLower.includes('high density')) return '#ff0000'; // Red for high density
+            if (locationLower.includes('medium density')) return '#0000ff'; // Blue for medium density
+            if (locationLower.includes('low density')) return '#00cc44'; // Green for low density
+            return '#888888'; // Gray for unknown/other
+        }
+
         function plotProperties(data) {
             // Remove any existing markers
             if (markers.length > 0) {
@@ -134,7 +173,7 @@
                 markers = [];
             }
 
-            // Plot each property as a small red dot with a popup showing the Location name
+            // Plot each property with density-based colors
             data.forEach(item => {
                 const lat = parseFloat(item['Latitude']);
                 const lon = parseFloat(item['Longitude']);
@@ -143,8 +182,8 @@
                 if (!isNaN(lat) && !isNaN(lon)) {
                     const dot = L.circleMarker([lat, lon], {
                         radius: 4,
-                        fillColor: '#ff0000',
-                        color: '#cc0000',
+                        fillColor: getDensityColor(location),
+                        color: '#333',
                         weight: 1,
                         opacity: 1,
                         fillOpacity: 0.8

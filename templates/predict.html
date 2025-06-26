@@ -18,7 +18,10 @@
             </div>
             <div class="col-md-6 mb-3">
                 <label for="property_type" class="form-label">Property Type</label>
-                <input type="text" class="form-control" id="property_type" name="property_type" required>
+                <select class="form-control" id="property_type" name="property_type" required>
+                    <option value="Single Storey">Single Storey</option>
+                    <option value="Double Storey">Double Storey</option>
+                </select>
             </div>
             <div class="col-md-6 mb-3">
                 <label for="area" class="form-label">Area (sqm)</label>
@@ -49,7 +52,12 @@
             </div>
             <div class="col-md-6 mb-3">
                 <label for="age_category" class="form-label">Age Category</label>
-                <input type="text" class="form-control" id="age_category" name="age_category" required>
+                <select class="form-control" id="age_category" name="age_category" required>
+                    <option value="Old">Old</option>
+                    <option value="Relatively New">Relatively New</option>
+                    <option value="Established">Established</option>
+                    <option value="New">New</option>
+                </select>
             </div>
             <div class="col-md-6 mb-3">
                 <label for="schools" class="form-label">Proximity to Schools (km)</label>
@@ -67,7 +75,7 @@
                 <label for="highway" class="form-label">Proximity to Highway (km)</label>
                 <input type="number" step="0.01" class="form-control" id="highway" name="highway" required>
             </div>
-        </div>
+    </div>
         <button type="submit" id="submit-btn" class="btn btn-primary" disabled>Estimate Value</button>
     </form>
     <div id="result" class="mt-4"></div>

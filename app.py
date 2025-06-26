@@ -6,6 +6,8 @@ import os
 from datetime import datetime
 from geopy.geocoders import Nominatim
 from geopy.distance import geodesic
+from model_explainer import ModelExplainer
+import random
 
 app = Flask(__name__)
 
@@ -22,6 +24,13 @@ def load_model():
         return None, None, None
 
 model, preprocessor, metadata = load_model()
+
+# Initialize model explainer
+try:
+    explainer = ModelExplainer()
+except Exception as e:
+    print(f"Could not initialize model explainer: {e}")
+    explainer = None
 
 # Define known locations and their coordinates from your dataset
 # In a real application, you would load this from a file or database
@@ -126,6 +135,10 @@ def get_property_data():
     """API endpoint to get property data for visualizations."""
     try:
         df = pd.read_csv('PROPERTYVALUATIONS.csv')
+        
+        # Add status field (sold/available) - for demo purposes, randomly assign
+        df['Status'] = df.apply(lambda x: random.choice(['Sold', 'Available']), axis=1)
+        
         return jsonify({
             'success': True,
             'data': df.to_dict('records'),
@@ -156,6 +169,86 @@ def api_available_properties():
     try:
         df = pd.read_csv('PROPERTYVALUATIONS.csv')
         return jsonify({'success': True, 'data': df.to_dict('records')})
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
+
+@app.route('/explain')
+def explain():
+    """Model explainability page."""
+    return render_template('explain.html')
+
+@app.route('/explain-prediction', methods=['POST'])
+def explain_prediction():
+    """Generate explanation for a property prediction."""
+    if explainer is None:
+        return jsonify({'success': False, 'error': 'Model explainer not available'})
+    
+    try:
+        # Get form data
+        form_data = request.form.to_dict()
+        
+        # Get location from coordinates
+        latitude = float(form_data.pop('latitude'))
+        longitude = float(form_data.pop('longitude'))
+        detected_location = find_nearest_location(latitude, longitude)
+        
+        if not detected_location:
+            return jsonify({'success': False, 'error': 'Could not determine a known location from your coordinates.'})
+
+        # Prepare data for explanation
+        data = {
+            'bedrooms': int(form_data['bedrooms']),
+            'bathrooms': int(form_data['bathrooms']),
+            'parking_spaces': int(form_data['parking_spaces']),
+            'size_sqm': float(form_data['size_sqm']),
+            'distance_to_city_center': float(form_data['distance_to_city_center']),
+            'distance_to_nearest_school': float(form_data['distance_to_nearest_school']),
+            'distance_to_nearest_hospital': float(form_data['distance_to_nearest_hospital']),
+            'crime_rate': float(form_data['crime_rate']),
+            'area': detected_location,
+            'property_type': form_data['property_type'],
+            'condition': form_data['condition'],
+            'furnished': form_data['furnished'],
+            'garden': form_data['garden'],
+            'pool': form_data['pool']
+        }
+        
+        # Generate explanation
+        explanation = explainer.explain_prediction(data)
+        
+        if "error" in explanation:
+            return jsonify({'success': False, 'error': explanation['error']})
+        
+        # Create plots
+        feature_plot = explainer.create_feature_importance_plot(explanation)
+        waterfall_plot = explainer.create_waterfall_plot(explanation)
+        
+        return jsonify({
+            'success': True,
+            'explanation': explanation,
+            'feature_plot': feature_plot,
+            'waterfall_plot': waterfall_plot,
+            'location': detected_location
+        })
+        
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)})
+
+@app.route('/global-importance')
+def global_importance():
+    """Show global feature importance."""
+    if explainer is None:
+        return jsonify({'success': False, 'error': 'Model explainer not available'})
+    
+    try:
+        global_plot = explainer.create_global_importance_plot()
+        global_importance = explainer.get_global_feature_importance()
+        
+        return jsonify({
+            'success': True,
+            'global_plot': global_plot,
+            'global_importance': global_importance
+        })
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)})
 

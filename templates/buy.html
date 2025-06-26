@@ -8,8 +8,48 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
-        #buy-map { height: 400px; width: 100%; border-radius: 10px; margin-bottom: 30px; }
-        .property-card { margin-bottom: 20px; }
+        #buy-map { 
+            height: 400px; 
+            width: 100%; 
+            border-radius: 10px; 
+            margin-bottom: 30px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .property-card { 
+            margin-bottom: 20px;
+            transition: transform 0.3s ease;
+        }
+        .property-card:hover {
+            transform: translateY(-5px);
+        }
+        .card {
+            border: none;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .location-btn {
+            background-color: #e9ecef;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            color: #495057;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .location-btn:hover {
+            background-color: #007bff;
+            color: white;
+        }
+        .property-price {
+            font-size: 1.5rem;
+            color: #28a745;
+            font-weight: bold;
+        }
+        .property-location {
+            color: #6c757d;
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+        }
     </style>
 </head>
 <body>
@@ -25,22 +65,55 @@
 </nav>
 <div class="container mt-4">
     <h2 class="mb-4 text-center">Available Properties for Sale</h2>
+    <form id="filter-form" class="row mb-4">
+        <div class="col-md-4 mb-2">
+            <label for="price-range" class="form-label">Price Range</label>
+            <select class="form-control" id="price-range" name="price-range">
+                <option value="all">All</option>
+                <option value="low">Below $50,000</option>
+                <option value="medium">$50,000 - $150,000</option>
+                <option value="high">Above $150,000</option>
+            </select>
+        </div>
+        <div class="col-md-4 mb-2">
+            <label for="location-density" class="form-label">Location Density</label>
+            <select class="form-control" id="location-density" name="location-density">
+                <option value="all">All</option>
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+            </select>
+        </div>
+        <div class="col-md-4 mb-2 d-flex align-items-end">
+            <button type="submit" class="btn btn-primary w-100">Apply Filters</button>
+        </div>
+    </form>
     <div id="buy-map"></div>
     <div class="row">
         {% for prop in properties %}
         <div class="col-md-6">
-            <div class="card property-card shadow-sm">
+            <div class="card property-card">
                 <div class="card-body">
-                    <h5 class="card-title">{{ prop['Property Type']|title }} in {{ prop['Location'] }}</h5>
-                    <p class="card-text mb-1"><b>Area:</b> {{ prop['Area'] }} sqm</p>
-                    <p class="card-text mb-1"><b>Rooms:</b> {{ prop['Number of rooms'] }}</p>
-                    <p class="card-text mb-1"><b>Structures:</b> {{ prop['Number of structures'] }}</p>
-                    <p class="card-text mb-1"><b>Swimming Pool:</b> {{ prop['Swimming Pool'] }}</p>
-                    <p class="card-text mb-1"><b>Boundary:</b> {{ prop['Boundary'] }}</p>
-                    <p class="card-text mb-1"><b>Age:</b> {{ prop['Age Category'] }}</p>
-                    <p class="card-text mb-1"><b>Land Rate:</b> {{ prop['Land Rate'] }}</p>
-                    <p class="card-text mb-1"><b>Market Value:</b> <span style="color:green; font-weight:bold;">${{ '{:,.2f}'.format(prop['Market Value']) }}</span></p>
-                    <p class="card-text mb-1"><b>Latitude:</b> {{ prop['Latitude'] }}, <b>Longitude:</b> {{ prop['Longitude'] }}</p>
+                    <h5 class="card-title">{{ prop['Property Type']|title }}</h5>
+                    <div class="property-location">
+                        <i class="fas fa-map-marker-alt"></i> {{ prop['Location'] }}
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-6">
+                            <p class="mb-1"><b>Area:</b> {{ prop['Area'] }} sqm</p>
+                            <p class="mb-1"><b>Rooms:</b> {{ prop['Number of rooms'] }}</p>
+                            <p class="mb-1"><b>Structures:</b> {{ prop['Number of structures'] }}</p>
+                            <p class="mb-1"><b>Age:</b> {{ prop['Age Category'] }}</p>
+                        </div>
+                        <div class="col-6">
+                            <p class="mb-1"><b>Swimming Pool:</b> {{ prop['Swimming Pool'] }}</p>
+                            <p class="mb-1"><b>Boundary:</b> {{ prop['Boundary'] }}</p>
+                            <p class="mb-1"><b>Land Rate:</b> {{ prop['Land Rate'] }}</p>
+                        </div>
+                    </div>
+                    <div class="property-price text-end">
+                        ${{ '{:,.2f}'.format(prop['Market Value']) }}
+                    </div>
                 </div>
             </div>
         </div>
@@ -48,21 +121,125 @@
     </div>
 </div>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 <script>
     const harareCoords = [-17.8252, 31.0335];
     let buyMap;
+    let markers = [];
+    let allProperties = [
+        {% for prop in properties %}
+        {
+            'Property Type': `{{ prop['Property Type'] }}`,
+            'Location': `{{ prop['Location'] }}`,
+            'Area': {{ prop['Area'] }},
+            'Number of rooms': {{ prop['Number of rooms'] }},
+            'Number of structures': {{ prop['Number of structures'] }},
+            'Age Category': `{{ prop['Age Category'] }}`,
+            'Swimming Pool': `{{ prop['Swimming Pool'] }}`,
+            'Boundary': `{{ prop['Boundary'] }}`,
+            'Land Rate': {{ prop['Land Rate'] }},
+            'Market Value': {{ prop['Market Value'] }},
+            'Latitude': {{ prop['Latitude'] }},
+            'Longitude': {{ prop['Longitude'] }}
+        },
+        {% endfor %}
+    ];
+
+    function getDensity(location) {
+        const loc = location.toLowerCase();
+        if (loc.includes('high density')) return 'high';
+        if (loc.includes('medium density')) return 'medium';
+        if (loc.includes('low density')) return 'low';
+        return 'all';
+    }
+
+    function filterProperties() {
+        const price = $('#price-range').val();
+        const density = $('#location-density').val();
+        return allProperties.filter(prop => {
+            let priceMatch = false;
+            if (price === 'all') priceMatch = true;
+            else if (price === 'low') priceMatch = prop['Market Value'] < 50000;
+            else if (price === 'medium') priceMatch = prop['Market Value'] >= 50000 && prop['Market Value'] <= 150000;
+            else if (price === 'high') priceMatch = prop['Market Value'] > 150000;
+
+            let densityMatch = false;
+            if (density === 'all') densityMatch = true;
+            else densityMatch = getDensity(prop['Location']) === density;
+
+            return priceMatch && densityMatch;
+        });
+    }
+
+    function renderProperties(props) {
+        const row = $('.row').eq(1); // The second .row is for property cards
+        row.empty();
+        props.forEach(prop => {
+            row.append(`
+            <div class="col-md-6">
+                <div class="card property-card">
+                    <div class="card-body">
+                        <h5 class="card-title">${prop['Property Type']}</h5>
+                        <div class="property-location">
+                            <i class="fas fa-map-marker-alt"></i> ${prop['Location']}
+                        </div>
+                        <div class="row mb-3">
+                            <div class="col-6">
+                                <p class="mb-1"><b>Area:</b> ${prop['Area']} sqm</p>
+                                <p class="mb-1"><b>Rooms:</b> ${prop['Number of rooms']}</p>
+                                <p class="mb-1"><b>Structures:</b> ${prop['Number of structures']}</p>
+                                <p class="mb-1"><b>Age:</b> ${prop['Age Category']}</p>
+                            </div>
+                            <div class="col-6">
+                                <p class="mb-1"><b>Swimming Pool:</b> ${prop['Swimming Pool']}</p>
+                                <p class="mb-1"><b>Boundary:</b> ${prop['Boundary']}</p>
+                                <p class="mb-1"><b>Land Rate:</b> ${prop['Land Rate']}</p>
+                            </div>
+                        </div>
+                        <div class="property-price text-end">
+                            $${Number(prop['Market Value']).toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2})}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            `);
+        });
+    }
+
+    function renderMarkers(props) {
+        markers.forEach(m => buyMap.removeLayer(m));
+        markers = [];
+        props.forEach(prop => {
+            if (!isNaN(prop['Latitude']) && !isNaN(prop['Longitude'])) {
+                const marker = L.marker([prop['Latitude'], prop['Longitude']]).addTo(buyMap);
+                marker.bindPopup(`
+                    <div class="text-center">
+                        <h6>${prop['Property Type']}</h6>
+                        <p class="mb-1">${prop['Location']}</p>
+                        <p class="mb-0"><b>$${Number(prop['Market Value']).toLocaleString()}</b></p>
+                    </div>
+                `);
+                markers.push(marker);
+            }
+        });
+    }
+
+    function updateBuyPage() {
+        const filtered = filterProperties();
+        renderProperties(filtered);
+        renderMarkers(filtered);
+    }
+
     $(document).ready(function() {
         buyMap = L.map('buy-map').setView(harareCoords, 12);
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '\u00a9 OpenStreetMap contributors'
         }).addTo(buyMap);
-        // Plot properties
-        {% for prop in properties %}
-        if (!isNaN({{ prop['Latitude'] }}) && !isNaN({{ prop['Longitude'] }})) {
-            const marker = L.marker([{{ prop['Latitude'] }}, {{ prop['Longitude'] }}]).addTo(buyMap);
-            marker.bindPopup(`<b>{{ prop['Property Type']|title }}</b><br>Location: {{ prop['Location'] }}<br>Value: ${{ '{:,.2f}'.format(prop['Market Value']) }}`);
-        }
-        {% endfor %}
+        updateBuyPage();
+        $('#filter-form').on('submit', function(e) {
+            e.preventDefault();
+            updateBuyPage();
+        });
     });
 </script>
 </body>

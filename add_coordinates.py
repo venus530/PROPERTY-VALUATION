@@ -1,65 +1,54 @@
 import pandas as pd
-import numpy as np
-import random
+from geopy.geocoders import Nominatim
+from geopy.extra.rate_limiter import RateLimiter
+import time
 
-def add_coordinates_to_csv():
-    """Add latitude and longitude coordinates to the property dataset."""
-    
-    # Load the existing CSV
+# Define Harare bounding box (approximate)
+HARARE_BOUNDS = {
+    'min_lat': -17.95,
+    'max_lat': -17.65,
+    'min_lon': 30.95,
+    'max_lon': 31.25
+}
+
+def is_valid_coordinate(lat, lon):
+    try:
+        lat = float(lat)
+        lon = float(lon)
+        return (HARARE_BOUNDS['min_lat'] <= lat <= HARARE_BOUNDS['max_lat'] and
+                HARARE_BOUNDS['min_lon'] <= lon <= HARARE_BOUNDS['max_lon'])
+    except Exception:
+        return False
+
+def main():
     df = pd.read_csv('PROPERTYVALUATIONS.csv')
-    
-    # Define coordinate ranges for different areas in Harare
-    # These are approximate coordinates for different suburbs in Harare
-    location_coordinates = {
-        'medium density': {
-            'lat_range': (-17.85, -17.75),  # Harare latitude range
-            'lon_range': (30.95, 31.15)     # Harare longitude range
-        },
-        'high density': {
-            'lat_range': (-17.90, -17.80),
-            'lon_range': (30.90, 31.10)
-        },
-        'low density': {
-            'lat_range': (-17.80, -17.70),
-            'lon_range': (31.00, 31.20)
-        }
-    }
-    
-    # Add coordinate columns
-    latitudes = []
-    longitudes = []
-    
-    for _, row in df.iterrows():
-        location_type = row['Location']
-        
-        if location_type in location_coordinates:
-            lat_range = location_coordinates[location_type]['lat_range']
-            lon_range = location_coordinates[location_type]['lon_range']
-            
-            # Generate coordinates with some randomness within the range
-            lat = random.uniform(lat_range[0], lat_range[1])
-            lon = random.uniform(lon_range[0], lon_range[1])
-        else:
-            # Default coordinates for unknown locations
-            lat = random.uniform(-17.85, -17.75)
-            lon = random.uniform(30.95, 31.15)
-        
-        latitudes.append(lat)
-        longitudes.append(lon)
-    
-    # Add the coordinate columns
-    df['Latitude'] = latitudes
-    df['Longitude'] = longitudes
-    
-    # Save the updated CSV
-    df.to_csv('PROPERTYVALUATIONS.csv', index=False)
-    
-    print(f"✅ Added coordinates to {len(df)} properties")
-    print(f"📊 Coordinate ranges:")
-    print(f"   Latitude: {df['Latitude'].min():.4f} to {df['Latitude'].max():.4f}")
-    print(f"   Longitude: {df['Longitude'].min():.4f} to {df['Longitude'].max():.4f}")
-    
-    return df
+    geolocator = Nominatim(user_agent="property_valuation_geocoder")
+    geocode = RateLimiter(geolocator.geocode, min_delay_seconds=1)
 
-if __name__ == '__main__':
-    add_coordinates_to_csv() 
+    updated = 0
+    for idx, row in df.iterrows():
+        lat, lon = row['Latitude'], row['Longitude']
+        if not is_valid_coordinate(lat, lon):
+            # Build a location string for better accuracy
+            location_query = f"{row['Location']}, Harare, Zimbabwe"
+            try:
+                location = geocode(location_query)
+                if location:
+                    df.at[idx, 'Latitude'] = location.latitude
+                    df.at[idx, 'Longitude'] = location.longitude
+                    updated += 1
+                    print(f"Updated row {idx}: {location_query} -> ({location.latitude}, {location.longitude})")
+                else:
+                    print(f"Could not geocode: {location_query}")
+            except Exception as e:
+                print(f"Error geocoding {location_query}: {e}")
+            time.sleep(1)  # Be nice to the API
+
+    if updated > 0:
+        df.to_csv('PROPERTYVALUATIONS_geocoded.csv', index=False)
+        print(f"\nUpdated {updated} rows. Saved to PROPERTYVALUATIONS_geocoded.csv.")
+    else:
+        print("No updates were made. All coordinates appear valid.")
+
+if __name__ == "__main__":
+    main() 

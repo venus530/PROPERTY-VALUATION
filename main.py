@@ -99,7 +99,7 @@ def train_and_evaluate_models(X_train, y_train, X_test, y_test):
         if name == 'Linear Regression':
             # For Linear Regression, just fit the model directly
             model = config['model']
-            model.fit(X_train, y_train)
+        model.fit(X_train, y_train)
             best_model = model
             print("Linear Regression fitted with default parameters")
         else:
