@@ -24,8 +24,8 @@ def load_model():
         return None, None, None
 
 # Initialize model variables (commented out due to compatibility issues)
-model, preprocessor, metadata = None, None, None
-#model, preprocessor, metadata = load_model()
+#model, preprocessor, metadata = None, None, None
+model, preprocessor, metadata = load_model()
 
 # Initialize model explainer
 try:
@@ -109,17 +109,18 @@ def predict():
         # Create DataFrame and predict
         df = pd.DataFrame([data])
         
-        # Check if preprocessor and model are available
-        if preprocessor is None or model is None:
+        # Ensure model is loaded
+        if model is None or preprocessor is None:
             return jsonify({
                 'success': False, 
-                'error': 'Model not available due to compatibility issues. Please contact support.'
+                'error': 'Model failed to load. Please try again later.'
             })
-            
+        
+        # Process data and make prediction
         X_processed = preprocessor.transform(df)
         prediction = model.predict(X_processed)[0]
         
-        # Check if metadata is available
+        # Get model info
         model_info = "Gradient Boosting Model"
         if metadata is not None and 'performance' in metadata:
             model_info = f"Gradient Boosting Model - MAE: ${metadata['performance']['MAE']:,.2f}"
