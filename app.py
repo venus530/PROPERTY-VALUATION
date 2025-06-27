@@ -18,9 +18,17 @@ def load_model():
         preprocessor = joblib.load('models/preprocessor.joblib')
         with open('models/model_metadata.json', 'r') as f:
             metadata = json.load(f)
+        print("Model loaded successfully!")
         return model, preprocessor, metadata
     except FileNotFoundError:
         print("Model files not found. Please run main.py first to train and save the model.")
+        return None, None, None
+    except ModuleNotFoundError as e:
+        print(f"Model compatibility error: {e}")
+        print("This is likely due to scikit-learn version mismatch.")
+        return None, None, None
+    except Exception as e:
+        print(f"Error loading model: {e}")
         return None, None, None
 
 # Initialize model variables (commented out due to compatibility issues)
@@ -111,9 +119,14 @@ def predict():
         
         # Ensure model is loaded
         if model is None or preprocessor is None:
+            # Use fallback estimation
+            estimated_value = estimate_property_value(data)
             return jsonify({
-                'success': False, 
-                'error': 'Model failed to load. Please try again later.'
+                'success': True,
+                'prediction': f"${estimated_value:,.2f}",
+                'location': detected_location,
+                'confidence': 'Medium (Heuristic-based estimation)',
+                'model_info': 'Fallback estimation - ML model unavailable due to compatibility issues'
             })
         
         # Process data and make prediction
@@ -175,6 +188,47 @@ def get_property_data():
 def buy():
     """Buy page for property listings."""
     return render_template('buy.html')
+
+def estimate_property_value(data):
+    """Fallback property value estimation when ML model is not available."""
+    # Simple heuristic-based estimation
+    base_value = 50000  # Base value in USD
+    
+    # Location multiplier
+    location_multipliers = {
+        'CBD': 2.5,
+        'Avenues': 2.2,
+        'Eastlea': 1.8,
+        'Avondale': 2.0,
+        'Borrowdale': 2.8
+    }
+    location_mult = location_multipliers.get(data['Location'], 1.5)
+    
+    # Area multiplier (per square meter)
+    area_mult = data['Area'] * 100
+    
+    # Property type multiplier
+    type_multipliers = {
+        'Residential': 1.0,
+        'Commercial': 1.3,
+        'Industrial': 0.8
+    }
+    type_mult = type_multipliers.get(data['Property Type'], 1.0)
+    
+    # Room multiplier
+    room_mult = 1 + (data['Number of rooms'] - 2) * 0.1
+    
+    # Amenities
+    amenities_mult = 1.0
+    if data['Swimming Pool'] == 'Yes':
+        amenities_mult += 0.2
+    if data['Boundary'] == 'Yes':
+        amenities_mult += 0.1
+    
+    # Calculate estimated value
+    estimated_value = base_value * location_mult * area_mult * type_mult * room_mult * amenities_mult
+    
+    return estimated_value
 
 if __name__ == '__main__':
     app.run(debug=True)
