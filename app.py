@@ -124,26 +124,17 @@ def predict():
             return jsonify({
                 'success': True,
                 'prediction': f"${estimated_value:,.2f}",
-                'location': detected_location,
-                'confidence': 'Medium (Heuristic-based estimation)',
-                'model_info': 'Fallback estimation - ML model unavailable due to compatibility issues'
+                'location': detected_location
             })
         
         # Process data and make prediction
         X_processed = preprocessor.transform(df)
         prediction = model.predict(X_processed)[0]
         
-        # Get model info
-        model_info = "Gradient Boosting Model"
-        if metadata is not None and 'performance' in metadata:
-            model_info = f"Gradient Boosting Model - MAE: ${metadata['performance']['MAE']:,.2f}"
-        
         return jsonify({
             'success': True,
             'prediction': f"${prediction:,.2f}",
-            'location': detected_location,
-            'confidence': 'High (R² = 0.93)',
-            'model_info': model_info
+            'location': detected_location
         })
         
     except Exception as e:
@@ -187,7 +178,17 @@ def get_property_data():
 @app.route('/buy')
 def buy():
     """Buy page for property listings."""
-    return render_template('buy.html')
+    try:
+        # Load property data from CSV
+        df = pd.read_csv('PROPERTYVALUATIONS.csv')
+        
+        # Convert DataFrame to list of dictionaries for template
+        properties = df.to_dict('records')
+        
+        return render_template('buy.html', properties=properties)
+    except Exception as e:
+        print(f"Error loading property data: {e}")
+        return render_template('buy.html', properties=[])
 
 def estimate_property_value(data):
     """Fallback property value estimation when ML model is not available."""
